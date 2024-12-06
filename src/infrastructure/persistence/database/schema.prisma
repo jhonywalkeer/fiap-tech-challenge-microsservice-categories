@@ -1,0 +1,27 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-1.0.x"]
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output = "../../../../docs/images/diagrams/entity-relationship-diagram.svg"
+  theme = "neutral"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([name])
+}
+

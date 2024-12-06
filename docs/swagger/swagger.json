@@ -1,0 +1,530 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Microsserviço de Clientes",
+    "description": "Esta API foi desenvolvida faz parte do sistema cujo foco é ajudar lanchonetes e restaurantes a gerenciar de forma eficiente os pedidos dos clientes, automatizando o processo de pedidos e integrando-os diretamente com a cozinha e o sistema de estoque. Através desta API, você pode implementar um sistema de autoatendimento que melhora a experiência do cliente, reduz erros e aumenta a eficiência operacional. Sendo esta responsável por gerenciar os usuários do sistema.",
+    "contact": {
+      "name": "Jhony Walker",
+      "url": "https://github.com/jhonywalkeer"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/v1/"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health Check"],
+        "summary": "Verifica o status da aplicação e a conexão com banco dados",
+        "responses": {
+          "200": {
+            "description": "Status retornado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno no servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "API indisponível",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceUnavailable"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "tags": ["Usuários"],
+        "summary": "Cria um novo usuário",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso na base dados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestException"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Já existe um usuário cadastrado com o CPF",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflicException"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno no servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Usuários"],
+        "summary": "Retorna uma lista de usuários",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Número da página",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Número de usuários por página",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Campo para ordenar os resultados",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "name"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Ordem de classificação (asc ou desc)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de usuários retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindAllUsers"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestException"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuários não encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundException"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno no servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{cpf}": {
+      "get": {
+        "tags": ["Usuários"],
+        "summary": "Retorna um usuário pelo CPF",
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF do usuário que deseja consultar",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário retornado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindUserById"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestException"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundException"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno no servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Health": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "description": "Status da aplicação",
+                "example": "UP"
+              },
+              "api": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "description": "Status da API",
+                    "example": "up"
+                  }
+                }
+              },
+              "database": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "description": "Status da conexão com banco de dados",
+                    "example": "up"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador único do usuário do tipo CUID (Custom Unique Identifier)",
+            "example": "clwp89y4k000013ebenzg54rw"
+          },
+          "email": {
+            "type": "string",
+            "description": "E-mail do usuário que será cadastrado no sistema",
+            "example": "jhony@fiap.com"
+          },
+          "social_security_number": {
+            "type": "string",
+            "description": "CPF do usuário que será cadastrado no sistema (somente números)",
+            "example": "12345678900"
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome do usuário que será cadastrado no sistema",
+            "example": "Jhony Walker"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Data e hora de criação do usuário no sistema ( formato ISO 8601 )",
+            "example": "2021-09-01T12:00:00Z"
+          }
+        }
+      },
+      "CreateUser": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nome do usuário que será cadastrado no sistema",
+            "example": "Jhony Walker"
+          },
+          "social_security_number": {
+            "type": "string",
+            "description": "CPF do usuário que será cadastrado no sistema (somente números)",
+            "example": "12345678900"
+          },
+          "email": {
+            "type": "string",
+            "description": "E-mail do usuário que será cadastrado no sistema",
+            "example": "jhony@fiap.com"
+          }
+        }
+      },
+      "CreatedUser": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "FindAllUsers": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "description": "Número da página",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "description": "Número de usuários por página",
+            "example": 10
+          },
+          "total": {
+            "type": "number",
+            "description": "Total de usuários cadastrados no sistema",
+            "example": 100
+          },
+          "total_pages": {
+            "type": "number",
+            "description": "Total de páginas",
+            "example": 10
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        }
+      },
+      "FindUserById": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "ServiceUnavailable": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "description": "Status da aplicação",
+                "example": "down"
+              },
+              "api": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "description": "Status da API",
+                    "example": "up"
+                  }
+                }
+              },
+              "database": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "description": "Status da conexão com banco de dados",
+                    "example": "down"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ConflicException": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "description": "Código de status HTTP",
+            "example": 409
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome do erro que será retornado ao usuário",
+            "example": "Registro já existe"
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensagem de erro que será retornada ao usuário",
+            "example": "Usuário já existente!"
+          }
+        }
+      },
+      "BadRequestException": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "description": "Código de status HTTP",
+            "example": 400
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome do erro que será retornado ao usuário",
+            "example": "Body inválido"
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensagem de erro que será retornada ao usuário",
+            "example": "Informe as propriedades corretas do body para a requisição!"
+          }
+        }
+      },
+      "NotFoundException": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "description": "Código de status HTTP",
+            "example": 404
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome do erro que será retornado ao usuário",
+            "example": "Recurso não encontrado"
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensagem de erro que será retornada ao usuário",
+            "example": "Recurso não encontrado"
+          }
+        }
+      },
+      "InternalServerError": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "description": "Código de status HTTP",
+            "example": 500
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome do erro que será retornado ao usuário",
+            "example": "Erro interno no servidor"
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensagem de erro que será retornada ao usuário",
+            "example": "Erro ao tentar criar um novo usuário"
+          },
+          "stack": {
+            "type": "string",
+            "description": "Pilha de erro que será retornada ao usuário",
+            "example": "Error: ER_DUP_ENTRY: Duplicate entry"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health Check"
+    },
+    {
+      "name": "Usuários"
+    }
+  ]
+}

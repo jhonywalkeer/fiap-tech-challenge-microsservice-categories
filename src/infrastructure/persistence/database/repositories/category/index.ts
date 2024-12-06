@@ -1,0 +1,6 @@
+export * from './create-category.prisma.repository'
+export * from './delete-category.prisma.repository'
+export * from './find-all-categories.prisma.repository'
+export * from './find-category-by-condition.prisma.repository'
+export * from './find-category-by-id.prisma.repository'
+export * from './update-category.prisma.repository'
